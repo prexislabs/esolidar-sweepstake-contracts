@@ -225,7 +225,12 @@ describe("eSolidar", function () {
       const owner = (await this.sweepstake.sweepstakes(this.tokenId)).owner;
       const totalStaked = (await this.sweepstake.sweepstakes(this.tokenId)).totalStakedTokens;
 
-      const initialBalance = await this.sweepstake.balances(owner);
+      const initialBalance = await this.sweepstake.balanceOf(
+        owner,
+        (
+          await this.sweepstake.sweepstakes(this.tokenId)
+        ).erc20Token
+      );
 
       const result = await (await this.sweepstake.draw(0)).wait();
       const drawEvent = result.events?.filter((x) => {
@@ -290,6 +295,10 @@ describe("eSolidar", function () {
       );
 
       expect(await this.sweepstake.getSweepstakeNumberOfDonors(this.tokenId)).to.eq(3);
+    });
+
+    it("Should cancel de sweepstake burning the ERC721 token", async function () {
+      await this.nft.connect(this.owner).burn(this.tokenId);
     });
   });
 
