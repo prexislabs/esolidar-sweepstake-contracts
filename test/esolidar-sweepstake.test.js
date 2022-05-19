@@ -222,6 +222,11 @@ describe("eSolidar", function () {
       // console.log();
       // console.log("==== RESULT ====");
 
+      const owner = (await this.sweepstake.sweepstakes(this.tokenId)).owner;
+      const totalStaked = (await this.sweepstake.sweepstakes(this.tokenId)).totalStakedTokens;
+
+      const initialBalance = await this.sweepstake.balances(owner);
+
       const result = await (await this.sweepstake.draw(0)).wait();
       const drawEvent = result.events?.filter((x) => {
         return x.event === "SweepstakeDraw";
@@ -229,6 +234,10 @@ describe("eSolidar", function () {
 
       console.log("Winner", drawEvent[0].args.winner);
       expect(await this.nft.ownerOf(this.tokenId)).to.eq(drawEvent[0].args.winner);
+
+      console.log("TotalStaked: ", formatEther(totalStaked));
+
+      expect(totalStaked).to.eq(initialBalance.add(totalStaked));
     });
   });
 
