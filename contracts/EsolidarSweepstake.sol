@@ -205,6 +205,10 @@ contract EsolidarSweepstake is Ownable, ReentrancyGuard {
 
   // Views
 
+  function balanceOf(address account) public view returns (uint256 balance) {
+    return balances[account];
+  }
+
   function getSweepstakeNumberOfDonors(uint256 _sweepstakeId) public view returns (uint256 donors) {
     donors = addressesPerSweepstake[_sweepstakeId].length;
   }
