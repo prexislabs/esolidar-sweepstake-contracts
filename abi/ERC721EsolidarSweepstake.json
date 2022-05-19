@@ -18,7 +18,7 @@
   "function grantRole(bytes32,address)",
   "function hasRole(bytes32,address) view returns (bool)",
   "function isApprovedForAll(address,address) view returns (bool)",
-  "function mint(string,address) returns (uint256)",
+  "function mint(string,address,uint256) returns (uint256)",
   "function name() view returns (string)",
   "function ownerOf(uint256) view returns (address)",
   "function pause()",
