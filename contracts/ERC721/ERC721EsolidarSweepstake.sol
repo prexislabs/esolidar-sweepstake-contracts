@@ -27,7 +27,7 @@ contract ERC721EsolidarSweepstake is
 
   EsolidarSweepstake public sweepstakeContract;
 
-  constructor() ERC721("Esolidar", "ESOL721") {
+  constructor() ERC721("esolidar", "ESOL721") {
     _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     _grantRole(MINTER_ROLE, msg.sender);
   }
