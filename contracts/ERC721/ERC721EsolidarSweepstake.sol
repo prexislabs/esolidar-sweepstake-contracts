@@ -36,7 +36,7 @@ contract ERC721EsolidarSweepstake is
     sweepstakeContract = EsolidarSweepstake(_sweepstakeContract);
   }
 
-  function mint(string memory uri, address erc20Token)
+  function mint(string memory uri, address erc20Token, uint256 duration)
     public
     onlyRole(MINTER_ROLE)
     whenNotPaused
@@ -47,8 +47,11 @@ contract ERC721EsolidarSweepstake is
     _safeMint(msg.sender, tokenId);
     _setTokenURI(tokenId, uri);
 
-    sweepstakeContract.create(tokenId, msg.sender, erc20Token);
+    _approve(address(sweepstakeContract), tokenId);
+    sweepstakeContract.create(tokenId, msg.sender, erc20Token, duration);
   }
+
+  // TO-DO: List charities!
 
   function pause() public onlyRole(DEFAULT_ADMIN_ROLE) {
     _pause();
@@ -70,7 +73,7 @@ contract ERC721EsolidarSweepstake is
   // The following functions are overrides required by Solidity.
 
   function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
-    // Verificar se o sweepstake está ativo, se estiver, não deixar queimar
+    sweepstakeContract.destroy(tokenId);
     super._burn(tokenId);
   }
 
