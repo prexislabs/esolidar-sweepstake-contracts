@@ -108,7 +108,7 @@ describe("eSolidar", function () {
 
   describe("First donation event", function () {
     it("Should mint ERC721 and automatically create a linked Sweepstake", async function () {
-      const tx = await this.nft.connect(this.owner).mint("metadata.json", this.usd.address);
+      const tx = await this.nft.connect(this.owner).mint("metadata.json", this.usd.address, 0);
 
       this.tokenId = await getEventValue(tx, "tokenId", true);
 
@@ -185,7 +185,7 @@ describe("eSolidar", function () {
   });
 
   describe("Sorting", function () {
-    it("test sort algorithm", async function () {
+    it("Should add more donors", async function () {
       await this.sweepstake.connect(this.addrs[4]).stake(this.tokenId, parseEther("10"));
       await this.sweepstake.connect(this.addrs[5]).stake(this.tokenId, parseEther("20"));
       await this.sweepstake.connect(this.addrs[6]).stake(this.tokenId, parseEther("40"));
@@ -197,33 +197,99 @@ describe("eSolidar", function () {
       await this.sweepstake.connect(this.addrs[12]).stake(this.tokenId, parseEther("300"));
       await this.sweepstake.connect(this.addrs[13]).stake(this.tokenId, parseEther("200"));
       await this.sweepstake.connect(this.addrs[14]).stake(this.tokenId, parseEther("10"));
+    });
 
-      const donors = await this.sweepstake.getSweepstakeDonorsInfo(0);
+    it("Should draw, transfer NFT to winner and tokens to charity", async function () {
+      // const donors = await this.sweepstake.getSweepstakeDonorsInfo(0);
       // console.log("donor", donors);
 
-      const totalStaked = (await this.sweepstake.sweepstakes(0)).totalStakedTokens;
+      // const totalStaked = (await this.sweepstake.sweepstakes(0)).totalStakedTokens;
 
-      console.log();
-      console.log("TotalStaked: ", formatEther(totalStaked));
+      // console.log();
+      // console.log("TotalStaked: ", formatEther(totalStaked));
 
-      let perc;
+      // let perc;
 
-      for (const donor of donors) {
-        console.log();
-        console.log("Address: ", donor.donor);
-        console.log("Staked: ", formatEther(donor.totalStaked));
-        console.log("Cumulative: ", formatEther(donor.cumulative));
-        perc = formatUnits(donor.totalStaked.mul(100000).div(totalStaked), "wei");
-        console.log("%", (perc / 100000) * 100);
-      }
+      // for (const donor of donors) {
+      //   console.log();
+      //   console.log("Address: ", donor.donor);
+      //   console.log("Staked: ", formatEther(donor.totalStaked));
+      //   console.log("Cumulative: ", formatEther(donor.cumulative));
+      //   perc = formatUnits(donor.totalStaked.mul(100000).div(totalStaked), "wei");
+      //   console.log("%", (perc / 100000) * 100);
+      // }
 
-      console.log();
-      console.log("==== RESULT ====");
+      // console.log();
+      // console.log("==== RESULT ====");
 
-      const result = await this.sweepstake.endLottery(0);
+      const result = await (await this.sweepstake.draw(0)).wait();
+      const drawEvent = result.events?.filter((x) => {
+        return x.event === "SweepstakeDraw";
+      });
 
-      console.log("Ticket: ", formatEther(result.ticket));
-      console.log("Winner: ", result.winner);
+      console.log("Winner", drawEvent[0].args.winner);
+      expect(await this.nft.ownerOf(this.tokenId)).to.eq(drawEvent[0].args.winner);
+    });
+  });
+
+  describe("Second donation event, with burn token/destroy sweepstake", function () {
+    it("Should mint ERC721 and automatically create a linked Sweepstake", async function () {
+      const tx = await this.nft.connect(this.owner).mint("metadata.json", this.usd.address, 0);
+
+      this.tokenId = await getEventValue(tx, "tokenId", true);
+
+      expect(this.tokenId).to.eq((await this.sweepstake.sweepstakes(this.tokenId)).tokenId);
+      expect(this.owner.address).to.eq((await this.sweepstake.sweepstakes(this.tokenId)).owner);
+      expect(this.usd.address).to.eq((await this.sweepstake.sweepstakes(this.tokenId)).erc20Token);
+      expect(true).to.eq((await this.sweepstake.sweepstakes(this.tokenId)).active);
+    });
+
+    it("Should donor #1 can stakes ERC20 token for the first time", async function () {
+      await this.sweepstake.connect(this.addrs[1]).stake(this.tokenId, parseEther("10"));
+
+      expect((await this.sweepstake.sweepstakes(this.tokenId)).totalStakedTokens).to.eq(
+        parseEther("10")
+      );
+      expect(await this.sweepstake.erc20TokenPerDonor(this.addrs[1].address, this.tokenId)).to.eq(
+        parseEther("10")
+      );
+
+      expect(await this.sweepstake.getSweepstakeNumberOfDonors(this.tokenId)).to.eq(1);
+    });
+
+    it("Should donor #2 can stakes ERC20 token for the first time", async function () {
+      await this.sweepstake.connect(this.addrs[2]).stake(this.tokenId, parseEther("20"));
+
+      expect((await this.sweepstake.sweepstakes(this.tokenId)).totalStakedTokens).to.eq(
+        parseEther("30")
+      );
+      expect(await this.sweepstake.erc20TokenPerDonor(this.addrs[2].address, this.tokenId)).to.eq(
+        parseEther("20")
+      );
+
+      expect(await this.sweepstake.getSweepstakeNumberOfDonors(this.tokenId)).to.eq(2);
+    });
+
+    it("Should donor #3 can stakes ERC20 token for the first time", async function () {
+      await this.sweepstake.connect(this.addrs[3]).stake(this.tokenId, parseEther("45"));
+
+      expect((await this.sweepstake.sweepstakes(this.tokenId)).totalStakedTokens).to.eq(
+        parseEther("75")
+      );
+      expect(await this.sweepstake.erc20TokenPerDonor(this.addrs[3].address, this.tokenId)).to.eq(
+        parseEther("45")
+      );
+
+      expect(await this.sweepstake.getSweepstakeNumberOfDonors(this.tokenId)).to.eq(3);
+    });
+  });
+
+  describe("Viewing", function () {
+    it("Should return the correct number of donors", async function () {
+      expect(formatUnits(await this.sweepstake.getSweepstakeNumberOfDonors(1), "wei")).to.eq("3");
+    });
+    it("Should return the active sweepstake dataset", async function () {
+      // console.log(await this.sweepstake.getActiveSweepstakes());
     });
   });
 });
