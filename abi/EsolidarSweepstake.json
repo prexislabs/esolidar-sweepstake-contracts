@@ -8,6 +8,7 @@
   "event Withdraw(address indexed,uint256)",
   "function ERC721contract() view returns (address)",
   "function addressesPerSweepstake(uint256,uint256) view returns (address)",
+  "function balanceOf(address) view returns (uint256)",
   "function balances(address) view returns (uint256)",
   "function create(uint256,address,address,uint256)",
   "function destroy(uint256)",
