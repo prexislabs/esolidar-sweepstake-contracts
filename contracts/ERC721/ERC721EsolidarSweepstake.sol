@@ -49,7 +49,7 @@ contract ERC721EsolidarSweepstake is
     _setTokenURI(tokenId, uri);
 
     _approve(address(sweepstakeContract), tokenId);
-    sweepstakeContract.create(tokenId, msg.sender, erc20Token, duration);
+    sweepstakeContract.create(tokenId, uri, msg.sender, erc20Token, duration);
   }
 
   function setBaseURI(string memory uri) external onlyRole(DEFAULT_ADMIN_ROLE) {
