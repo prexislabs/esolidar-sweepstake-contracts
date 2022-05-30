@@ -27,6 +27,8 @@ contract ERC721EsolidarSweepstake is
 
   EsolidarSweepstake public sweepstakeContract;
 
+  string public baseURI;
+
   constructor() ERC721("esolidar", "ESOL721") {
     _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     _grantRole(MINTER_ROLE, msg.sender);
@@ -36,12 +38,11 @@ contract ERC721EsolidarSweepstake is
     sweepstakeContract = EsolidarSweepstake(_sweepstakeContract);
   }
 
-  function mint(string memory uri, address erc20Token, uint256 duration)
-    public
-    onlyRole(MINTER_ROLE)
-    whenNotPaused
-    returns (uint256 tokenId)
-  {
+  function mint(
+    string memory uri,
+    address erc20Token,
+    uint256 duration
+  ) public onlyRole(MINTER_ROLE) whenNotPaused returns (uint256 tokenId) {
     tokenId = _tokenIdCounter.current();
     _tokenIdCounter.increment();
     _safeMint(msg.sender, tokenId);
@@ -49,6 +50,18 @@ contract ERC721EsolidarSweepstake is
 
     _approve(address(sweepstakeContract), tokenId);
     sweepstakeContract.create(tokenId, msg.sender, erc20Token, duration);
+  }
+
+  function setBaseURI(string memory uri) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    _setBaseURI(uri);
+  }
+
+  function _setBaseURI(string memory uri) internal {
+    baseURI = uri;
+  }
+
+  function _baseURI() internal view virtual override(ERC721) returns (string memory) {
+    return baseURI;
   }
 
   // TO-DO: List charities!

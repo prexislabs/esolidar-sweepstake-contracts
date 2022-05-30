@@ -108,7 +108,7 @@ describe("eSolidar", function () {
 
   describe("First donation event", function () {
     it("Should mint ERC721 and automatically create a linked Sweepstake", async function () {
-      const tx = await this.nft.connect(this.owner).mint("metadata.json", this.usd.address, 0);
+      const tx = await this.nft.connect(this.owner).mint("metadata0.json", this.usd.address, 0);
 
       this.tokenId = await getEventValue(tx, "tokenId", true);
 
@@ -248,7 +248,7 @@ describe("eSolidar", function () {
 
   describe("Second donation event, with burn token/destroy sweepstake", function () {
     it("Should mint ERC721 and automatically create a linked Sweepstake", async function () {
-      const tx = await this.nft.connect(this.owner).mint("metadata.json", this.usd.address, 0);
+      const tx = await this.nft.connect(this.owner).mint("metadata_01.json", this.usd.address, 0);
 
       this.tokenId = await getEventValue(tx, "tokenId", true);
 
@@ -299,6 +299,40 @@ describe("eSolidar", function () {
 
     it("Should cancel de sweepstake burning the ERC721 token", async function () {
       await this.nft.connect(this.owner).burn(this.tokenId);
+    });
+  });
+
+  describe("BaseURI", function () {
+    it("Should baseURI is empty", async function () {
+      expect(await this.nft.baseURI()).to.eq("");
+    });
+
+    it("Should set baseURI", async function () {
+      await this.nft.connect(this.owner).setBaseURI("https://example.com/");
+      expect(await this.nft.baseURI()).to.eq("https://example.com/");
+    });
+
+    it("Should NOT set baseURI - unauthorized", async function () {
+      await expectRevert(
+        this.nft.connect(this.addrs[1]).setBaseURI("https://example.com/"),
+        "AccessControl: account " +
+          this.addrs[1].address.toLowerCase() +
+          " is missing role 0x0000000000000000000000000000000000000000000000000000000000000000"
+      );
+    });
+
+    it("Should tokenURI from token 0 is https://example.com/metadata0.json", async function () {
+      expect(await this.nft.tokenURI(0)).to.eq("https://example.com/metadata0.json");
+    });
+
+    it("Should NOT get tokenURI, NFT burned", async function () {
+      await expectRevert(this.nft.tokenURI(1), "ERC721: owner query for nonexistent token");
+    });
+
+    it("Should mint new NFT and get tokenURI", async function () {
+      const tx = await this.nft.connect(this.owner).mint("metadataX.json", this.usd.address, 0);
+      this.tokenId = await getEventValue(tx, "tokenId", true);
+      expect(await this.nft.tokenURI(this.tokenId)).to.eq("https://example.com/metadataX.json");
     });
   });
 
