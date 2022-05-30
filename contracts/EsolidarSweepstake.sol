@@ -23,9 +23,12 @@ contract EsolidarSweepstake is Ownable, ReentrancyGuard {
   ERC721EsolidarSweepstake public ERC721contract;
 
   event SweepstakeCreated(
-    uint256 indexed tokenId,
+    uint256 tokenId,
     uint256 indexed sweepstakeId,
-    address indexed owner
+    address indexed owner,
+    address indexed erc20Token,
+    string uri,
+    uint256 duration
   );
   event SweepstakeDestroyed(uint256 indexed sweepstakeId);
   event SweepstakeDraw(
@@ -43,7 +46,7 @@ contract EsolidarSweepstake is Ownable, ReentrancyGuard {
 
   struct Sweepstake {
     uint256 tokenId;
-    // address erc721contract;
+    string uri;
     address owner;
     address erc20Token;
     uint256 duration;
@@ -78,6 +81,7 @@ contract EsolidarSweepstake is Ownable, ReentrancyGuard {
 
   function create(
     uint256 _tokenId,
+    string memory _uri,
     address _owner,
     address _erc20Token,
     uint256 _duration // TO-DO
@@ -87,13 +91,14 @@ contract EsolidarSweepstake is Ownable, ReentrancyGuard {
 
     Sweepstake storage sweepstake = sweepstakes[sweepstakeId];
     sweepstake.tokenId = _tokenId;
+    sweepstake.uri = _uri;
     sweepstake.owner = _owner;
     sweepstake.erc20Token = _erc20Token;
     sweepstake.duration = uint64(block.timestamp) + uint64(_duration);
     sweepstake.active = true;
     sweepstake.destroyed = false;
 
-    emit SweepstakeCreated(_tokenId, sweepstakeId, _owner);
+    emit SweepstakeCreated(_tokenId, sweepstakeId, _owner, _erc20Token, _uri, _duration);
   }
 
   function destroy(uint256 _sweepstakeId) external onlyOwner nonReentrant {
@@ -148,7 +153,6 @@ contract EsolidarSweepstake is Ownable, ReentrancyGuard {
   }
 
   // Sort
-
   function draw(uint256 _sweepstakeId)
     external
     nonReentrant
@@ -239,7 +243,7 @@ contract EsolidarSweepstake is Ownable, ReentrancyGuard {
             addressesPerSweepstake[_sweepstakeId].length,
             sweepstakes[_sweepstakeId].totalStakedTokens,
             msg.sender,
-            block.difficulty,
+            // block.difficulty,
             block.timestamp
           )
         )
@@ -288,41 +292,11 @@ contract EsolidarSweepstake is Ownable, ReentrancyGuard {
   }
 
   function getAllSweepstakes() external view returns (Sweepstake[] memory activeSweepstakes) {
-    activeSweepstakes = _getSweepstakes(true, true);
-  }
-
-  function getActiveSweepstakes() external view returns (Sweepstake[] memory activeSweepstakes) {
-    activeSweepstakes = _getSweepstakes(false, true);
-  }
-
-  function getInactiveSweepstakes()
-    external
-    view
-    returns (Sweepstake[] memory inactiveSweepstakes)
-  {
-    inactiveSweepstakes = _getSweepstakes(false, false);
-  }
-
-  function _getSweepstakes(bool all, bool active)
-    internal
-    view
-    returns (Sweepstake[] memory _sweepstakes)
-  {
-    _sweepstakes = new Sweepstake[](_sweepstakeIdCounter.current());
+    activeSweepstakes = new Sweepstake[](_sweepstakeIdCounter.current());
 
     for (uint256 i = 0; i < _sweepstakeIdCounter.current(); i++) {
-      if (all) {
-        _sweepstakes[i] = sweepstakes[i];
-        _sweepstakes[i].donors = getSweepstakeDonorsInfo(i);
-      } else {
-        if (active && sweepstakes[i].active) {
-          _sweepstakes[i] = sweepstakes[i];
-          _sweepstakes[i].donors = getSweepstakeDonorsInfo(i);
-        } else if (!active && !sweepstakes[i].active) {
-          _sweepstakes[i] = sweepstakes[i];
-          _sweepstakes[i].donors = getSweepstakeDonorsInfo(i);
-        }
-      }
+      activeSweepstakes[i] = sweepstakes[i];
+      activeSweepstakes[i].donors = getSweepstakeDonorsInfo(i);
     }
   }
 }
