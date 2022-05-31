@@ -30,7 +30,7 @@ module.exports = {
   networks: {
     alfajores: {
       url: "https://alfajores-forno.celo-testnet.org",
-      accounts: process.env.CELO_ADDRESS_PK !== undefined ? [process.env.CELO_ADDRESS_PK] : [],
+      accounts: process.env.ALFAJORES_ADDRESS_PK !== undefined ? [process.env.ALFAJORES_ADDRESS_PK] : [],
       chainId: 44787,
     },
 
@@ -46,6 +46,7 @@ module.exports = {
     currency: "USD",
     token: "CELO",
     coinmarketcap: process.env.COINMARKETCAP,
+    gasPrice: 0.6, // https://cointool.app/gasPrice/celo
   },
 
   abiExporter: {
