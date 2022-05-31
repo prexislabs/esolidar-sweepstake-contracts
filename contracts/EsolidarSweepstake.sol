@@ -13,8 +13,6 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import "./ERC721/ERC721EsolidarSweepstake.sol";
 
-import "hardhat/console.sol";
-
 /// @custom:security-contact security@prexis.io
 contract EsolidarSweepstake is Ownable, ReentrancyGuard {
   using Counters for Counters.Counter;
@@ -30,7 +28,9 @@ contract EsolidarSweepstake is Ownable, ReentrancyGuard {
     string uri,
     uint256 duration
   );
+  
   event SweepstakeDestroyed(uint256 indexed sweepstakeId);
+
   event SweepstakeDraw(
     uint256 indexed sweepstakeId,
     uint256 indexed tokenId,
@@ -178,7 +178,10 @@ contract EsolidarSweepstake is Ownable, ReentrancyGuard {
         winner = addressesPerSweepstake[_sweepstakeId][i];
 
         uint256 totalStaked = sweepstakes[_sweepstakeId].totalStakedTokens;
-        // sweepstakes[_sweepstakeId].totalStakedTokens = 0; // Preserve this data
+
+        sweepstakes[_sweepstakeId].active = false;
+        sweepstakes[_sweepstakeId].winner = winner;
+        sweepstakes[_sweepstakeId].drawTimestamp = block.timestamp;
 
         _addBalance(
           sweepstakes[_sweepstakeId].owner,
@@ -191,10 +194,6 @@ contract EsolidarSweepstake is Ownable, ReentrancyGuard {
           winner,
           sweepstakes[_sweepstakeId].tokenId
         );
-
-        sweepstakes[_sweepstakeId].active = false;
-        sweepstakes[_sweepstakeId].winner = winner;
-        sweepstakes[_sweepstakeId].drawTimestamp = block.timestamp;
 
         emit SweepstakeDraw(_sweepstakeId, sweepstakes[_sweepstakeId].tokenId, winner, totalStaked);
 
@@ -209,15 +208,6 @@ contract EsolidarSweepstake is Ownable, ReentrancyGuard {
     uint256 _amount
   ) internal {
     balances[_account][_erc20token] += _amount;
-    emit BalanceUpdated(_account, _erc20token, balances[_account][_erc20token]);
-  }
-
-  function _subBalance(
-    address _account,
-    address _erc20token,
-    uint256 _amount
-  ) internal {
-    balances[_account][_erc20token] -= _amount;
     emit BalanceUpdated(_account, _erc20token, balances[_account][_erc20token]);
   }
 
@@ -243,7 +233,6 @@ contract EsolidarSweepstake is Ownable, ReentrancyGuard {
             addressesPerSweepstake[_sweepstakeId].length,
             sweepstakes[_sweepstakeId].totalStakedTokens,
             msg.sender,
-            // block.difficulty,
             block.timestamp
           )
         )
