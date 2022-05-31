@@ -64,8 +64,6 @@ contract ERC721EsolidarSweepstake is
     return baseURI;
   }
 
-  // TO-DO: List charities!
-
   function pause() public onlyRole(DEFAULT_ADMIN_ROLE) {
     _pause();
   }
@@ -79,7 +77,14 @@ contract ERC721EsolidarSweepstake is
     address to,
     uint256 tokenId
   ) internal override(ERC721, ERC721Enumerable) whenNotPaused {
-    // Verificar se o sweepstake está ativo, se estiver, não deixar transferir
+    
+    // Reverts if sweepstake is active
+    (,,,,,,,,bool active,) = sweepstakeContract.sweepstakes(tokenId);
+
+    if (active) {
+      revert("ERC721S: Sweepstake is active");
+    }
+
     super._beforeTokenTransfer(from, to, tokenId);
   }
 
