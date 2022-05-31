@@ -7,6 +7,7 @@ const { isCommunityResourcable } = require("@ethersproject/providers");
 const { BigNumber } = require("ethers");
 const { deployContract } = require("ethereum-waffle");
 const { parse } = require("dotenv");
+const { convertObjectToArray } = require("ioredis/built/utils");
 
 async function deploy(name, ...params) {
   const Contract = await ethers.getContractFactory(name);
@@ -38,64 +39,38 @@ describe("eSolidar", function () {
 
     [this.owner, ...this.addrs] = await ethers.getSigners();
 
-    // Mint ERC20 token to addrs 1, 2 and 3
-    await this.usd.mint(this.addrs[1].address, parseEther("1000"));
-    await this.usd.mint(this.addrs[2].address, parseEther("1000"));
-    await this.usd.mint(this.addrs[3].address, parseEther("1000"));
-    await this.usd.mint(this.addrs[4].address, parseEther("1000"));
-    await this.usd.mint(this.addrs[5].address, parseEther("1000"));
-    await this.usd.mint(this.addrs[6].address, parseEther("1000"));
-    await this.usd.mint(this.addrs[7].address, parseEther("1000"));
-    await this.usd.mint(this.addrs[8].address, parseEther("1000"));
-    await this.usd.mint(this.addrs[9].address, parseEther("1000"));
-    await this.usd.mint(this.addrs[10].address, parseEther("1000"));
-    await this.usd.mint(this.addrs[11].address, parseEther("1000"));
-    await this.usd.mint(this.addrs[12].address, parseEther("1000"));
-    await this.usd.mint(this.addrs[13].address, parseEther("1000"));
-    await this.usd.mint(this.addrs[14].address, parseEther("1000"));
+    const amount = parseEther("1000");
 
-    await this.usd
-      .connect(this.addrs[1])
-      .increaseAllowance(this.sweepstake.address, parseEther("1000"));
-    await this.usd
-      .connect(this.addrs[2])
-      .increaseAllowance(this.sweepstake.address, parseEther("1000"));
-    await this.usd
-      .connect(this.addrs[3])
-      .increaseAllowance(this.sweepstake.address, parseEther("1000"));
-    await this.usd
-      .connect(this.addrs[4])
-      .increaseAllowance(this.sweepstake.address, parseEther("1000"));
-    await this.usd
-      .connect(this.addrs[5])
-      .increaseAllowance(this.sweepstake.address, parseEther("1000"));
-    await this.usd
-      .connect(this.addrs[6])
-      .increaseAllowance(this.sweepstake.address, parseEther("1000"));
-    await this.usd
-      .connect(this.addrs[7])
-      .increaseAllowance(this.sweepstake.address, parseEther("1000"));
-    await this.usd
-      .connect(this.addrs[8])
-      .increaseAllowance(this.sweepstake.address, parseEther("1000"));
-    await this.usd
-      .connect(this.addrs[9])
-      .increaseAllowance(this.sweepstake.address, parseEther("1000"));
-    await this.usd
-      .connect(this.addrs[10])
-      .increaseAllowance(this.sweepstake.address, parseEther("1000"));
-    await this.usd
-      .connect(this.addrs[11])
-      .increaseAllowance(this.sweepstake.address, parseEther("1000"));
-    await this.usd
-      .connect(this.addrs[12])
-      .increaseAllowance(this.sweepstake.address, parseEther("1000"));
-    await this.usd
-      .connect(this.addrs[13])
-      .increaseAllowance(this.sweepstake.address, parseEther("1000"));
-    await this.usd
-      .connect(this.addrs[14])
-      .increaseAllowance(this.sweepstake.address, parseEther("1000"));
+    // Mint ERC20 token to addrs 1, 2 and 3
+    await this.usd.mint(this.addrs[1].address, amount);
+    await this.usd.mint(this.addrs[2].address, amount);
+    await this.usd.mint(this.addrs[3].address, amount);
+    await this.usd.mint(this.addrs[4].address, amount);
+    await this.usd.mint(this.addrs[5].address, amount);
+    await this.usd.mint(this.addrs[6].address, amount);
+    await this.usd.mint(this.addrs[7].address, amount);
+    await this.usd.mint(this.addrs[8].address, amount);
+    await this.usd.mint(this.addrs[9].address, amount);
+    await this.usd.mint(this.addrs[10].address, amount);
+    await this.usd.mint(this.addrs[11].address, amount);
+    await this.usd.mint(this.addrs[12].address, amount);
+    await this.usd.mint(this.addrs[13].address, amount);
+    await this.usd.mint(this.addrs[14].address, amount);
+
+    await this.usd.connect(this.addrs[1]).increaseAllowance(this.sweepstake.address, amount);
+    await this.usd.connect(this.addrs[2]).increaseAllowance(this.sweepstake.address, amount);
+    await this.usd.connect(this.addrs[3]).increaseAllowance(this.sweepstake.address, amount);
+    await this.usd.connect(this.addrs[4]).increaseAllowance(this.sweepstake.address, amount);
+    await this.usd.connect(this.addrs[5]).increaseAllowance(this.sweepstake.address, amount);
+    await this.usd.connect(this.addrs[6]).increaseAllowance(this.sweepstake.address, amount);
+    await this.usd.connect(this.addrs[7]).increaseAllowance(this.sweepstake.address, amount);
+    await this.usd.connect(this.addrs[8]).increaseAllowance(this.sweepstake.address, amount);
+    await this.usd.connect(this.addrs[9]).increaseAllowance(this.sweepstake.address, amount);
+    await this.usd.connect(this.addrs[10]).increaseAllowance(this.sweepstake.address, amount);
+    await this.usd.connect(this.addrs[11]).increaseAllowance(this.sweepstake.address, amount);
+    await this.usd.connect(this.addrs[12]).increaseAllowance(this.sweepstake.address, amount);
+    await this.usd.connect(this.addrs[13]).increaseAllowance(this.sweepstake.address, amount);
+    await this.usd.connect(this.addrs[14]).increaseAllowance(this.sweepstake.address, amount);
 
     this.tokenId = 0;
   });
@@ -116,6 +91,14 @@ describe("eSolidar", function () {
       expect(this.owner.address).to.eq((await this.sweepstake.sweepstakes(this.tokenId)).owner);
       expect(this.usd.address).to.eq((await this.sweepstake.sweepstakes(this.tokenId)).erc20Token);
       expect(true).to.eq((await this.sweepstake.sweepstakes(this.tokenId)).active);
+    });
+
+    it("Should not transfer when sweepstake is active", async function () {
+      await expect(
+        this.nft
+          .connect(this.owner)
+          .transferFrom(this.owner.address, this.addrs[1].address, this.tokenId)
+      ).to.be.revertedWith("ERC721S: Sweepstake is active");
     });
 
     it("Should donor #1 can stakes ERC20 token for the first time", async function () {
@@ -150,6 +133,7 @@ describe("eSolidar", function () {
       expect((await this.sweepstake.sweepstakes(this.tokenId)).totalStakedTokens).to.eq(
         parseEther("155.5")
       );
+
       expect(await this.sweepstake.erc20TokenPerDonor(this.addrs[2].address, this.tokenId)).to.eq(
         parseEther("35")
       );
@@ -200,33 +184,12 @@ describe("eSolidar", function () {
     });
 
     it("Should draw, transfer NFT to winner and tokens to charity", async function () {
-      // const donors = await this.sweepstake.getSweepstakeDonorsInfo(0);
-      // console.log("donor", donors);
+      const ownerAddress = (await this.sweepstake.sweepstakes(this.tokenId)).owner;
 
-      // const totalStaked = (await this.sweepstake.sweepstakes(0)).totalStakedTokens;
-
-      // console.log();
-      // console.log("TotalStaked: ", formatEther(totalStaked));
-
-      // let perc;
-
-      // for (const donor of donors) {
-      //   console.log();
-      //   console.log("Address: ", donor.donor);
-      //   console.log("Staked: ", formatEther(donor.totalStaked));
-      //   console.log("Cumulative: ", formatEther(donor.cumulative));
-      //   perc = formatUnits(donor.totalStaked.mul(100000).div(totalStaked), "wei");
-      //   console.log("%", (perc / 100000) * 100);
-      // }
-
-      // console.log();
-      // console.log("==== RESULT ====");
-
-      const owner = (await this.sweepstake.sweepstakes(this.tokenId)).owner;
       const totalStaked = (await this.sweepstake.sweepstakes(this.tokenId)).totalStakedTokens;
 
       const initialBalance = await this.sweepstake.balanceOf(
-        owner,
+        ownerAddress,
         (
           await this.sweepstake.sweepstakes(this.tokenId)
         ).erc20Token
@@ -237,12 +200,36 @@ describe("eSolidar", function () {
         return x.event === "SweepstakeDraw";
       });
 
-      console.log("Winner", drawEvent[0].args.winner);
+      // console.log("Winner", drawEvent[0].args.winner);
+
       expect(await this.nft.ownerOf(this.tokenId)).to.eq(drawEvent[0].args.winner);
 
-      console.log("TotalStaked: ", formatEther(totalStaked));
-
       expect(totalStaked).to.eq(initialBalance.add(totalStaked));
+
+      await this.sweepstake
+        .connect(this.owner)
+        .withdraw((await this.sweepstake.sweepstakes(this.tokenId)).erc20Token);
+
+      expect(
+        await this.sweepstake.balanceOf(
+          ownerAddress,
+          (
+            await this.sweepstake.sweepstakes(this.tokenId)
+          ).erc20Token
+        )
+      ).to.eq("0");
+
+      expect(await this.usd.balanceOf(ownerAddress)).to.eq(totalStaked);
+    });
+
+    it("Should winner can transfer NFT", async function () {
+      const winnerAddress = (await this.sweepstake.sweepstakes(0)).winner;
+
+      const winner = this.addrs.find((o) => o.address === winnerAddress);
+
+      await this.nft.connect(winner).transferFrom(winnerAddress, this.addrs[9].address, 0);
+
+      expect(await this.nft.ownerOf(0)).to.eq(this.addrs[9].address);
     });
   });
 
@@ -336,12 +323,59 @@ describe("eSolidar", function () {
     });
   });
 
-  describe("Viewing", function () {
+  describe("Pause/Unpause", function () {
+    it("Should NOT pause - unauthorized", async function () {
+      await expectRevert(
+        this.nft.connect(this.addrs[1]).pause(),
+        "AccessControl: account " +
+          this.addrs[1].address.toLowerCase() +
+          " is missing role 0x0000000000000000000000000000000000000000000000000000000000000000"
+      );
+    });
+    it("Should pause", async function () {
+      await this.nft.connect(this.owner).pause();
+      expect(await this.nft.paused()).to.eq(true);
+    });
+    it("Should NOT mint when paused", async function () {
+      await expectRevert(
+        this.nft.connect(this.owner).mint("metadataPAUSED.json", this.usd.address, 0),
+        "Pausable: paused"
+      );
+    });
+    it("Should NOT transfer when paused", async function () {
+      await expectRevert(
+        this.nft
+          .connect(this.addrs[9])
+          .transferFrom(this.addrs[9].address, this.addrs[1].address, 0),
+        "Pausable: paused"
+      );
+    });
+    it("Should NOT unpause - unauthorized", async function () {
+      await expectRevert(
+        this.nft.connect(this.addrs[1]).unpause(),
+        "AccessControl: account " +
+          this.addrs[1].address.toLowerCase() +
+          " is missing role 0x0000000000000000000000000000000000000000000000000000000000000000"
+      );
+    });
+    it("Should unpause", async function () {
+      await this.nft.connect(this.owner).unpause();
+      expect(await this.nft.paused()).to.eq(false);
+    });
+  });
+
+  describe("Views", function () {
     it("Should return the correct number of donors", async function () {
       expect(formatUnits(await this.sweepstake.getSweepstakeNumberOfDonors(1), "wei")).to.eq("3");
     });
     it("Should return the active sweepstake dataset", async function () {
-      // console.log(await this.sweepstake.getActiveSweepstakes());
+      console.log(await this.sweepstake.getAllSweepstakes());
+    });
+    it("Should return the correct info of sweepstak's donors", async function () {
+      console.log(await this.sweepstake.getSweepstakeDonorsInfo(0));
+    });
+    it("Should return the correct info of sweepstak's donors", async function () {
+      console.log(await this.sweepstake.getSweepstakeWithDonors(0));
     });
   });
 });
