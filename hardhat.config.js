@@ -12,7 +12,7 @@ require("hardhat-deploy");
 require("@nomiclabs/hardhat-ethers");
 
 module.exports = {
-  // defaultNetwork: "alfajores",
+
   namedAccounts: {
     deployer: 0,
   },
@@ -28,20 +28,6 @@ module.exports = {
   },
 
   networks: {
-    // BSC Testnet
-    bsctestnet: {
-      url: process.env.RPC_TESTNET,
-      accounts:
-        process.env.TESTNET_PRIVATE_KEY !== undefined ? [process.env.TESTNET_PRIVATE_KEY] : [],
-    },
-
-    // Rinkeby: 4
-    rinkeby: {
-      url: process.env.RPC_RINKEBY || "",
-      accounts:
-        process.env.TESTNET_PRIVATE_KEY !== undefined ? [process.env.TESTNET_PRIVATE_KEY] : [],
-    },
-
     alfajores: {
       url: "https://alfajores-forno.celo-testnet.org",
       accounts: process.env.CELO_ADDRESS_PK !== undefined ? [process.env.CELO_ADDRESS_PK] : [],
@@ -60,7 +46,6 @@ module.exports = {
     currency: "USD",
     token: "CELO",
     coinmarketcap: process.env.COINMARKETCAP,
-    gasPrice: "0.6",
   },
 
   abiExporter: {
@@ -70,9 +55,5 @@ module.exports = {
     flat: true,
     spacing: 2,
     pretty: true,
-  },
-
-  etherscan: {
-    apiKey: process.env.BSCSCAN_API_KEY,
   },
 };
