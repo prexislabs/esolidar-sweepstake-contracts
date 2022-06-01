@@ -14,8 +14,7 @@ const { deployments, getNamedAccounts } = hre;
   console.log("setSweepstakeAddress Tx", (await tx1.wait()).transactionHash);
 
   // Configure baseURI on ERC721 contract
-  // const baseURI = "https://esolidar.com/";
-  // const tx2 = await erc721.setBaseURI(baseURI);
-  // console.log("setBaseURI Tx", (await tx2.wait()).transactionHash);
-
+  const baseURI = "ifps://";
+  const tx2 = await erc721.setBaseURI(baseURI);
+  console.log("setBaseURI Tx", (await tx2.wait()).transactionHash);
 })();
